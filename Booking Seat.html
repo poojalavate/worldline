@@ -1,0 +1,178 @@
+<html>
+<head>
+<title>Seat Booking</title>
+
+<style>
+.seat {
+  width: 50px;
+  height: 50px;
+  margin: 5px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  text-align: center;
+  line-height: 50px;
+  cursor: pointer;
+}
+
+.available {
+  background-color: green;
+}
+
+.booked {
+  background-color: blue;
+  cursor: not-allowed;
+}
+
+.selected {
+  background-color: orange;
+}
+body{
+background-color:pink;
+}
+
+
+</style>
+</head>
+<body>
+<div id="seating-chart"></div>
+<h3><p>Selected Seats: <span id="selected-seats"></span></p></h3>
+<h3><p>Total Price: $<span id="total-price"></span></p></h3>
+<button id="book-seats-button"><b>Book Selected Seats</b></button>
+<button type="submit"><b>Submit</b></button>
+
+<h3><p>Next Show starts in: <span id="countdown-timer"></span></p></h3>
+
+<h2><p>Error:Please Select Atleast one seat</p></h2>
+
+
+
+
+
+
+
+<script>
+// Sample data for available and booked seats
+const movieSeats = {
+  "movie1": {
+    "availableSeats": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "bookedSeats": [11, 12, 13, 14, 15],
+    "ticketPrice": 10
+  },
+  "movie2": {
+    "availableSeats": [1, 2, 3, 4, 5],
+    "bookedSeats": [6, 7, 8],
+    "ticketPrice": 8
+  }
+};
+
+let selectedSeats = [];
+let totalPrice = 0;
+
+// Function to generate seating chart for a movie
+function generateSeatingChart(movieId) {
+  const movie = movieSeats[movieId];
+  const availableSeats = movie.availableSeats;
+  const bookedSeats = movie.bookedSeats;
+  const ticketPrice = movie.ticketPrice;
+  
+  const seatingChartContainer = document.getElementById("seating-chart");
+  seatingChartContainer.innerHTML = "";
+  
+  for (let i = 1; i <= 15; i++) {
+    const seat = document.createElement("div");
+    seat.classList.add("seat");
+    
+    if (availableSeats.includes(i)) {
+      seat.classList.add("available");
+      seat.addEventListener("click", function() {
+        if (this.classList.contains("selected")) {
+          this.classList.remove("selected");
+          selectedSeats.splice(selectedSeats.indexOf(i), 1);
+          totalPrice -= ticketPrice;
+        } else {
+          this.classList.add("selected");
+          selectedSeats.push(i);
+          totalPrice += ticketPrice;
+        }
+        
+        updateSelectedSeatsAndTotalPrice();
+      });
+    } else if (bookedSeats.includes(i)) {
+      seat.classList.add("booked");
+      seat.setAttribute("disabled", true);
+    }
+    
+    seatingChartContainer.appendChild(seat);
+  }
+}
+
+// Function to update the selected seats and total price on the page
+function updateSelectedSeatsAndTotalPrice() {
+  const selectedSeatsElement = document.getElementById("selected-seats");
+  const totalPriceElement = document.getElementById("total-price");
+  
+  selectedSeatsElement.textContent = selectedSeats.join(", ");
+  totalPriceElement.textContent = totalPrice.toFixed(2);
+}
+
+// Function to book selected seats for a movie
+function bookSelectedSeats(movieId) {
+  const movie = movieSeats[movieId];
+  const availableSeats = movie.availableSeats;
+  const bookedSeats = movie.bookedSeats;
+  
+  for (let i = 0; i < selectedSeats.length; i++) {
+    const seatNumber = selectedSeats[i];
+    availableSeats.splice(availableSeats.indexOf(seatNumber), 1);
+    bookedSeats.push(seatNumber);
+  }
+  
+  console.log("Booked seats:", bookedSeats);
+}
+
+// Call the function to generate seating chart for a movie
+generateSeatingChart("movie1");
+
+// Add click event listener to book seats button
+const bookSeatsButton = document.getElementById("book-seats-button");
+bookSeatsButton.addEventListener("click", function() {
+  bookSelectedSeats("movie1");
+});
+
+// Update the selected seats and total price on page load
+updateSelectedSeatsAndTotalPrice();
+
+
+
+
+
+
+
+// Set the date and time for the next show
+const nextShowDate = new Date("2023-05-15T20:00:00Z");
+
+// Get the container where the timer will be displayed
+const countdownTimer = document.getElementById("countdown-timer");
+
+// Update the timer every second
+setInterval(() => {
+  // Calculate the time left until the next show
+  const now = new Date().getTime();
+  const timeLeft = nextShowDate - now;
+
+  // Calculate the hours, minutes, and seconds left
+  const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+  // Display the timer in the container
+  countdownTimer.innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+}, 1000);
+
+
+
+
+
+</script>
+</body>
+</html>
